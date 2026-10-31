@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arcus</title>
-  <meta name="description" content="A local-first goal planner: break big goals into prioritized subgoals and track progress." />
+  <meta name="description" content="A personal goal execution platform: define an objective, break it down, prioritize, execute, and measure progress." />
   <meta name="theme-color" content="#0f172a" />
-  <link rel="icon" type="image/svg+xml" href="icon.svg?v=2026.10.31.1" />
-  <link rel="apple-touch-icon" href="icon.svg?v=2026.10.31.1" />
-  <link rel="manifest" href="manifest.webmanifest?v=2026.10.31.1" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg?v=2026.10.31.2" />
+  <link rel="apple-touch-icon" href="icon.svg?v=2026.10.31.2" />
+  <link rel="manifest" href="manifest.webmanifest?v=2026.10.31.2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=2026.10.31.1" />
+  <link rel="stylesheet" href="styles.css?v=2026.10.31.2" />
   <script>
     // Resolve atmosphere before first paint to prevent a flash of the wrong theme.
     try {
@@ -173,21 +173,25 @@
     </svg>
   </div>
 
+
   <div class="shell" id="shell">
     <!-- ============ TOP BAR ============ -->
-    <header class="topbar" id="topbar">
+    <header class="topbar">
       <nav class="crumb" id="crumb" aria-label="Breadcrumb"></nav>
       <div class="topbar__actions">
-        <button type="button" class="btn btn--beacon btn--tiny" id="topLogBtn" hidden>+ Log progress</button>
-        <button type="button" class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">&#9881;&#65039;</button>
+        <button type="button" class="btn btn--primary btn--sm" id="topProgressBtn" hidden>Record progress</button>
+        <button type="button" class="btn btn--sm" id="topNewBtn">New goal</button>
+        <button type="button" class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
       </div>
     </header>
 
     <div class="app" id="app">
       <!-- ============ LEFT RAIL ============ -->
       <aside class="rail" id="rail">
-        <header class="rail__brand">
-          <svg class="brand__emblem" viewBox="0 0 120 80" role="img" aria-label="Arcus cloud emblem">
+        <a class="rail__brand" href="#/dashboard">
+          <svg class="brand__emblem" viewBox="0 0 120 80" role="img" aria-label="Arcus">
             <defs>
               <linearGradient id="emblemShelf" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0" stop-color="#f8fafc" />
@@ -196,174 +200,353 @@
             </defs>
             <path d="M 4 40 C 24 14 46 8 60 8 C 74 8 96 14 116 40 C 96 30 78 28 60 28 C 42 28 24 30 4 40 Z" fill="url(#emblemShelf)" />
             <path d="M 4 48 C 26 34 46 32 60 32 C 74 32 94 34 116 48 C 94 42 78 40 60 40 C 42 40 26 42 4 48 Z" fill="#64748b" />
-            <path d="M 24 74 L 46 60 L 64 62 L 92 46" fill="none" stroke="var(--beacon-bright)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-            <circle cx="92" cy="46" r="5" fill="var(--beacon-bright)" />
+            <path d="M 24 74 L 46 60 L 64 62 L 92 46" fill="none" stroke="var(--ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="92" cy="46" r="5" fill="var(--ok)" />
           </svg>
-          <div>
-            <h1 class="brand__name">Arcus</h1>
-            <p class="brand__tag">Goals &middot; Priorities &middot; Progress</p>
-          </div>
-        </header>
+          <span>
+            <span class="brand__name">Arcus</span>
+            <span class="brand__tag">Goal execution</span>
+          </span>
+        </a>
 
-        <div class="rail__summary" id="railSummary"></div>
+        <nav class="nav" id="nav" aria-label="Views">
+          <a class="nav__item" href="#/dashboard" data-route="dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            Dashboard
+          </a>
+          <a class="nav__item" href="#/focus" data-route="focus">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+            Focus <span class="nav__badge" id="focusBadge" hidden></span>
+          </a>
+          <a class="nav__item" href="#/goals" data-route="goals">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5M5 5v14M5 12h7M5 19h7M14 12h5M14 19h5M12 5h7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Goals
+          </a>
+        </nav>
 
-        <div class="seg" id="railFilter" role="tablist" aria-label="Filter goals">
-          <button type="button" class="seg__btn is-active" data-filter="active">Active</button>
-          <button type="button" class="seg__btn" data-filter="done">Done</button>
-          <button type="button" class="seg__btn" data-filter="all">All</button>
+        <div class="rail__section">
+          <div class="rail__label">Primary goals</div>
+          <ul class="rail-goals" id="railGoals"></ul>
         </div>
 
-        <ul class="goal-list" id="goalList"></ul>
-
-        <button type="button" class="btn btn--beacon rail__new" id="newGoalBtn">+ New goal</button>
         <p class="rail__version" id="appVersion"></p>
       </aside>
 
-      <!-- ============ MAIN CANVAS ============ -->
-      <main class="canvas" id="canvas"></main>
+      <!-- ============ MAIN ============ -->
+      <main class="canvas" id="canvas" tabindex="-1"></main>
     </div>
   </div>
 
-  <!-- Goal editor modal -->
-  <div class="modal" id="editorModal" hidden>
-    <div class="modal__backdrop" data-close-editor></div>
-    <div class="modal__card modal__card--wide" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+  <!-- ============ Goal editor ============ -->
+  <div class="modal" id="goalModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card modal__card--wide" role="dialog" aria-modal="true" aria-labelledby="goalModalTitle">
       <div class="modal__header">
-        <h2 class="modal__title" id="editorTitle">New goal</h2>
-        <button type="button" class="modal__close" data-close-editor aria-label="Close dialog">&times;</button>
+        <h2 class="modal__title" id="goalModalTitle">New goal</h2>
+        <button type="button" class="modal__close" data-close aria-label="Close dialog">&times;</button>
       </div>
-      <form class="form" id="editorForm" autocomplete="off">
-        <div class="form__row form__row--icon">
-          <label class="field field--icon">
-            <span class="field__label">Icon</span>
-            <input class="field__input" id="fIcon" maxlength="4" />
+      <form class="form" id="goalForm" autocomplete="off" novalidate>
+        <p class="form__error" id="goalFormError" role="alert" hidden></p>
+        <fieldset class="form__section">
+          <legend>Objective</legend>
+          <label class="field">
+            <span class="field__label">Name</span>
+            <input class="field__input" name="name" required maxlength="200" placeholder="e.g. Become debt-free" />
           </label>
           <label class="field">
-            <span class="field__label">Goal</span>
-            <input class="field__input" id="fTitle" required placeholder="e.g. Pay off all credit card debt" />
+            <span class="field__label">Description <em>why it matters, how you'll get there</em></span>
+            <textarea class="field__input field__input--area" name="description" rows="2"></textarea>
           </label>
-        </div>
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">Part of</span>
-            <select class="field__input" id="fParent"></select>
-          </label>
-          <label class="field">
-            <span class="field__label">Status</span>
-            <select class="field__input" id="fStatus">
-              <option value="active">Active</option>
-              <option value="paused">Paused</option>
-              <option value="done">Done</option>
-            </select>
-          </label>
-        </div>
-        <div class="field">
-          <span class="field__label">How is progress measured?</span>
-          <div class="seg seg--form" id="fKind">
-            <button type="button" class="seg__btn" data-kind="amount">A number</button>
-            <button type="button" class="seg__btn" data-kind="rollup">Sum of subgoals</button>
-            <button type="button" class="seg__btn" data-kind="milestone">Steps / subgoals done</button>
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">Part of</span>
+              <select class="field__input" name="parentId"></select>
+            </label>
+            <label class="field">
+              <span class="field__label">Priority</span>
+              <select class="field__input" name="priority">
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
           </div>
-          <span class="field__hint" id="fKindHint"></span>
-        </div>
-        <div class="form__row" id="fUnitRow">
-          <label class="field">
-            <span class="field__label">Unit</span>
-            <select class="field__input" id="fUnit">
-              <option value="$">$ (dollars)</option>
-              <option value="%">% (percent)</option>
-              <option value="">Count</option>
-              <option value="lb">lb</option>
-              <option value="mi">mi</option>
-              <option value="hrs">hrs</option>
-              <option value="__custom">Custom&hellip;</option>
-            </select>
+        </fieldset>
+
+        <fieldset class="form__section">
+          <legend>Measurement</legend>
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">Measured as</span>
+              <select class="field__input" name="measurementType">
+                <option value="currency">Currency</option>
+                <option value="numeric">Number</option>
+                <option value="percentage">Percentage</option>
+                <option value="custom">Custom unit</option>
+                <option value="milestones">Milestones</option>
+                <option value="binary">Done / not done</option>
+              </select>
+            </label>
+            <label class="field" data-show="currency">
+              <span class="field__label">Currency</span>
+              <select class="field__input" name="currency"></select>
+            </label>
+            <label class="field" data-show="numeric custom">
+              <span class="field__label">Unit <em data-show="numeric">optional</em></span>
+              <input class="field__input" name="unit" maxlength="24" placeholder="e.g. mi, lb, chapters" />
+            </label>
+          </div>
+          <p class="field__hint" id="measureHint"></p>
+          <label class="check" data-show="currency numeric percentage custom">
+            <input type="checkbox" name="rollup" />
+            <span><strong>Total from subgoals</strong> — current value is calculated from compatible subgoals (same measurement &amp; unit). Never mixes units.</span>
           </label>
-          <label class="field" id="fUnitCustomWrap" hidden>
-            <span class="field__label">Custom unit</span>
-            <input class="field__input" id="fUnitCustom" maxlength="12" placeholder="e.g. books" />
+          <div class="form__row form__row--3" data-show="currency numeric percentage custom">
+            <label class="field">
+              <span class="field__label">Starting value</span>
+              <input class="field__input" name="startValue" inputmode="decimal" />
+            </label>
+            <label class="field" data-hide-rollup>
+              <span class="field__label">Current value</span>
+              <input class="field__input" name="currentValue" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span class="field__label">Target value</span>
+              <input class="field__input" name="targetValue" inputmode="decimal" />
+            </label>
+          </div>
+          <p class="field__hint" id="directionHint"></p>
+        </fieldset>
+
+        <fieldset class="form__section">
+          <legend>Schedule</legend>
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">Start date</span>
+              <input class="field__input" name="startDate" type="date" />
+            </label>
+            <label class="field">
+              <span class="field__label">Target date</span>
+              <input class="field__input" name="targetDate" type="date" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="form__section" data-show="currency">
+          <legend>Debt details <em>optional</em></legend>
+          <label class="check">
+            <input type="checkbox" name="isDebt" />
+            <span><strong>This is a debt payoff</strong> — adds interest, promotional APR and payment estimates.</span>
           </label>
-        </div>
-        <div class="form__row form__row--3" id="fNumbersRow">
-          <label class="field">
-            <span class="field__label">Starting value</span>
-            <input class="field__input" id="fStart" type="number" step="any" inputmode="decimal" />
-          </label>
-          <label class="field">
-            <span class="field__label">Current value</span>
-            <input class="field__input" id="fCurrent" type="number" step="any" inputmode="decimal" />
-          </label>
-          <label class="field">
-            <span class="field__label">Target</span>
-            <input class="field__input" id="fTarget" type="number" step="any" inputmode="decimal" />
-          </label>
-        </div>
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">Target date <em>(optional)</em></span>
-            <input class="field__input" id="fDue" type="date" />
-          </label>
-          <span class="field__hint field__hint--inline" id="fDirection"></span>
-        </div>
-        <label class="field">
-          <span class="field__label">Why / how <em>(notes)</em></span>
-          <textarea class="field__input field__input--area" id="fNotes" rows="3" placeholder="e.g. 0% APR ends Jan 1. Then 24.99% kicks in, so clear this one first."></textarea>
-        </label>
+          <div data-debt>
+            <div class="form__row form__row--3">
+              <label class="field">
+                <span class="field__label">APR (standard) %</span>
+                <input class="field__input" name="apr" inputmode="decimal" placeholder="e.g. 24.99" />
+              </label>
+              <label class="field">
+                <span class="field__label">Promo APR %</span>
+                <input class="field__input" name="promoApr" inputmode="decimal" placeholder="e.g. 0" />
+              </label>
+              <label class="field">
+                <span class="field__label">Promo expires</span>
+                <input class="field__input" name="promoEndDate" type="date" />
+              </label>
+            </div>
+            <div class="form__row form__row--3">
+              <label class="field">
+                <span class="field__label">Statement closes on day</span>
+                <input class="field__input" name="statementDay" inputmode="numeric" placeholder="1–31" />
+              </label>
+              <label class="field">
+                <span class="field__label">Minimum payment</span>
+                <input class="field__input" name="minimumPayment" inputmode="decimal" />
+              </label>
+              <span></span>
+            </div>
+            <label class="check">
+              <input type="checkbox" name="promoEndsBeforeStatement" />
+              <span>Promo expires <strong>before</strong> that cycle's statement closes (the last promo statement is the one before expiry)</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" name="deferredInterest" />
+              <span><strong>Deferred interest</strong> — interest is charged back to the purchase date if any balance remains at expiry</span>
+            </label>
+          </div>
+        </fieldset>
+
         <div class="form__actions">
-          <button type="button" class="btn btn--ghost" data-close-editor>Cancel</button>
-          <button type="submit" class="btn btn--beacon">Save goal <kbd>&#8984;S</kbd></button>
+          <button type="button" class="btn" data-close>Cancel</button>
+          <button type="submit" class="btn btn--primary">Save goal</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Log progress modal -->
-  <div class="modal" id="logModal" hidden>
-    <div class="modal__backdrop" data-close-log></div>
-    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="logTitle">
+  <!-- ============ Record progress ============ -->
+  <div class="modal" id="progressModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="progressModalTitle">
       <div class="modal__header">
-        <h2 class="modal__title" id="logTitle">Log progress</h2>
-        <button type="button" class="modal__close" data-close-log aria-label="Close dialog">&times;</button>
+        <h2 class="modal__title" id="progressModalTitle">Record progress</h2>
+        <button type="button" class="modal__close" data-close aria-label="Close dialog">&times;</button>
       </div>
-      <form class="form" id="logForm" autocomplete="off">
-        <label class="field">
+      <form class="form" id="progressForm" autocomplete="off" novalidate>
+        <p class="form__error" id="progressFormError" role="alert" hidden></p>
+        <label class="field" id="progressGoalField">
           <span class="field__label">Goal</span>
-          <select class="field__input" id="lGoal"></select>
+          <select class="field__input" name="goalId"></select>
         </label>
-        <div class="seg seg--form" id="lMode">
-          <button type="button" class="seg__btn is-active" data-mode="change" id="lModeChange">Paid down</button>
+        <div class="seg" id="progressMode" role="radiogroup" aria-label="Entry mode">
+          <button type="button" class="seg__btn is-active" data-mode="change">Progress</button>
+          <button type="button" class="seg__btn" data-mode="setback">Setback</button>
           <button type="button" class="seg__btn" data-mode="set">Set new value</button>
         </div>
         <div class="form__row">
           <label class="field">
-            <span class="field__label" id="lAmountLabel">Amount</span>
-            <input class="field__input" id="lAmount" type="number" step="any" inputmode="decimal" required />
+            <span class="field__label" id="progressAmountLabel">Amount</span>
+            <input class="field__input" name="amount" inputmode="decimal" required />
           </label>
           <label class="field">
             <span class="field__label">Date</span>
-            <input class="field__input" id="lDate" type="date" required />
+            <input class="field__input" name="date" type="date" required />
           </label>
         </div>
-        <p class="field__hint" id="lPreview"></p>
+        <p class="preview" id="progressPreview"></p>
         <label class="field">
-          <span class="field__label">Note <em>(optional)</em></span>
-          <input class="field__input" id="lNote" placeholder="e.g. Extra payment from bonus" />
+          <span class="field__label">Notes <em>optional</em></span>
+          <input class="field__input" name="notes" maxlength="1000" />
         </label>
         <div class="form__actions">
-          <button type="button" class="btn btn--ghost" data-close-log>Cancel</button>
-          <button type="submit" class="btn btn--beacon">Log it</button>
+          <button type="button" class="btn" data-close>Cancel</button>
+          <button type="submit" class="btn btn--primary">Record</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Settings modal -->
+  <!-- ============ Milestone ============ -->
+  <div class="modal" id="milestoneModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="milestoneModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="milestoneModalTitle">Milestone</h2>
+        <button type="button" class="modal__close" data-close aria-label="Close dialog">&times;</button>
+      </div>
+      <form class="form" id="milestoneForm" autocomplete="off" novalidate>
+        <p class="form__error" id="milestoneFormError" role="alert" hidden></p>
+        <label class="field">
+          <span class="field__label">Name</span>
+          <input class="field__input" name="name" required maxlength="200" placeholder="e.g. Pay down $1,500" />
+        </label>
+        <label class="field">
+          <span class="field__label">Description <em>optional</em></span>
+          <input class="field__input" name="description" maxlength="2000" />
+        </label>
+        <div class="form__row">
+          <label class="field" id="milestoneThresholdField">
+            <span class="field__label" id="milestoneThresholdLabel">Reached after progress of</span>
+            <input class="field__input" name="targetValue" inputmode="decimal" placeholder="optional" />
+          </label>
+          <label class="field">
+            <span class="field__label">Due date</span>
+            <input class="field__input" name="dueDate" type="date" />
+          </label>
+        </div>
+        <p class="field__hint" id="milestoneHint"></p>
+        <label class="field field--narrow" id="milestoneWeightField">
+          <span class="field__label">Weight <em>for milestone-measured goals</em></span>
+          <input class="field__input" name="weight" inputmode="decimal" placeholder="1" />
+        </label>
+        <div class="form__actions">
+          <button type="button" class="btn" data-close>Cancel</button>
+          <button type="submit" class="btn btn--primary">Save milestone</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ Action ============ -->
+  <div class="modal" id="actionModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="actionModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="actionModalTitle">Action</h2>
+        <button type="button" class="modal__close" data-close aria-label="Close dialog">&times;</button>
+      </div>
+      <form class="form" id="actionForm" autocomplete="off" novalidate>
+        <p class="form__error" id="actionFormError" role="alert" hidden></p>
+        <label class="field">
+          <span class="field__label">Action</span>
+          <input class="field__input" name="name" required maxlength="300" placeholder="e.g. Make an additional $750 payment" />
+        </label>
+        <label class="field">
+          <span class="field__label">Details <em>optional</em></span>
+          <input class="field__input" name="description" maxlength="2000" />
+        </label>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Supports milestone</span>
+            <select class="field__input" name="milestoneId"></select>
+          </label>
+          <label class="field">
+            <span class="field__label">Priority</span>
+            <select class="field__input" name="priority">
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+        </div>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Due date</span>
+            <input class="field__input" name="dueDate" type="date" />
+          </label>
+          <label class="field">
+            <span class="field__label">Estimated effort</span>
+            <select class="field__input" name="effort">
+              <option value="">—</option>
+              <option value="xs">&lt; 15 min</option>
+              <option value="s">&lt; 1 hour</option>
+              <option value="m">Half day</option>
+              <option value="l">1–2 days</option>
+              <option value="xl">Multi-day</option>
+            </select>
+          </label>
+        </div>
+        <div class="form__actions">
+          <button type="button" class="btn" data-close>Cancel</button>
+          <button type="submit" class="btn btn--primary">Save action</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ Choice dialog (confirmations with explicit options) ============ -->
+  <div class="modal" id="choiceModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card" role="alertdialog" aria-modal="true" aria-labelledby="choiceTitle" aria-describedby="choiceText">
+      <div class="modal__header">
+        <h2 class="modal__title" id="choiceTitle"></h2>
+        <button type="button" class="modal__close" data-close aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="form">
+        <p class="choice__text" id="choiceText"></p>
+        <div class="form__actions form__actions--stack" id="choiceButtons"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Settings ============ -->
   <div class="modal" id="settingsModal" hidden>
-    <div class="modal__backdrop" data-close-settings></div>
+    <div class="modal__backdrop" data-close></div>
     <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <div class="modal__header">
         <h2 class="modal__title" id="settingsTitle">Settings</h2>
-        <button type="button" class="modal__close" data-close-settings aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal__close" data-close aria-label="Close dialog">&times;</button>
       </div>
       <div class="settings-content">
         <div class="settings-group">
@@ -423,25 +606,32 @@
     </div>
   </div>
 
-  <!-- About modal -->
+  <!-- ============ About ============ -->
   <div class="modal" id="aboutModal" hidden>
-    <div class="modal__backdrop" data-close-about></div>
+    <div class="modal__backdrop" data-close></div>
     <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
       <div class="modal__header">
         <h2 class="modal__title" id="aboutTitle">About Arcus</h2>
-        <button type="button" class="modal__close" data-close-about aria-label="Close dialog">&times;</button>
+        <button type="button" class="modal__close" data-close aria-label="Close dialog">&times;</button>
       </div>
       <div class="about-content">
         <p class="about-content__name">Arcus</p>
-        <p class="about-content__version" id="aboutVersion">Version 2026.10.31.1</p>
-        <p class="about-content__description">A local-first goal planner. Set a big goal, break it into prioritized subgoals, and log progress until it&rsquo;s done. Named after the arcus &mdash; the long, low shelf cloud that rolls in ahead of a storm front.</p>
+        <p class="about-content__version" id="aboutVersion"></p>
+        <p class="about-content__description">A personal goal execution platform. Define an objective, break it down, prioritize what matters, execute, and measure progress until it&rsquo;s achieved. Named after the arcus &mdash; the long, low shelf cloud that rolls in ahead of a storm front.</p>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="app.js?v=2026.10.31.1"></script>
+  <script src="js/util.js?v=2026.10.31.2"></script>
+  <script src="js/model.js?v=2026.10.31.2"></script>
+  <script src="js/progress.js?v=2026.10.31.2"></script>
+  <script src="js/insights.js?v=2026.10.31.2"></script>
+  <script src="js/store.js?v=2026.10.31.2"></script>
+  <script src="js/sync.js?v=2026.10.31.2"></script>
+  <script src="js/demo.js?v=2026.10.31.2"></script>
+  <script src="js/views.js?v=2026.10.31.2"></script>
+  <script src="js/app.js?v=2026.10.31.2"></script>
 </body>
 </html>

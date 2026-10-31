@@ -1,38 +1,78 @@
-# Arcus — Goal Planner & Progress Tracker
+# Arcus — Personal Goal Execution Platform
 
-## Overview
-- **Name:** Arcus (after the arcus / shelf cloud — the long, low, wedge-shaped cloud that rolls in ahead of a storm front).
-- **Purpose:** A local-first, zero-backend planner for big goals. Set a high-level goal (e.g. *Pay off all credit card debt*), break it into **prioritized subgoals** (e.g. *the $7,500 card whose 0% promo ends in 2 months*), log progress, and always know what to focus on next.
-- **Sister apps:** Shares the sky/cloud design language, settings, and encrypted cloud sync of Cumulus, Nimbus, Cirrus, Stratus, and Anvil (frosted glass, multi-atmosphere theme, no-build vanilla HTML/CSS/JS).
+**Define an objective. Break it down. Prioritize what matters. Execute. Measure progress. Achieve the objective.**
 
-## Technology & Design Philosophy
-- **Stack:** Plain vanilla HTML5, CSS3, ES2015+ JavaScript. No framework, no bundler, no build step.
-- **Local-first:** All data persists in `localStorage`; 100% private to the browser. JSON export/import plus optional zero-knowledge encrypted cloud sync.
-- **Deploy:** Static site — open `index.html` directly (`file://`) or via GitHub Pages: https://kashikoi.github.io/Arcus/
+Arcus turns ambitious, high-level goals into structured, measurable plans. It is domain-agnostic — paying off
+debt, building an emergency fund, restoring a car, launching a product, or a fitness objective all run on the
+same hierarchical goal engine.
+
+- **Live:** https://kashikoi.github.io/Arcus/
+- **Name:** after the arcus (shelf cloud) — the long, low cloud that rolls in ahead of a storm front.
+- **Suite:** shares the sky/glass design language, settings and encrypted cloud sync of Cumulus, Nimbus, Cirrus, Stratus and Anvil.
+
+## Using it
+
+| View | What it answers |
+|---|---|
+| **Dashboard** | What am I trying to accomplish? How much progress? What's next? What's at risk? What did I accomplish recently? |
+| **Focus** | What should I work on right now? Ranked recommendations with transparent reasons, overdue actions, upcoming milestones, blocked goals. Pin your own focus any time. |
+| **Goals** | Explorer: tree (expand/collapse) or list, search, filter by status/priority, sort. Archived goals live here too. |
+| **Goal detail** | The workspace for one objective: progress instrument, schedule & projections, debt payoff estimates, subordinate goals (priority order, drag to reorder), milestones, actions, progress history (with chart), dependencies. |
+
+Keyboard: `N` new goal · `R` record progress (on a goal) · `/` search goals · `D` / `F` / `G` switch views · `Esc` close dialogs.
 
 ## Concepts
-- **Goal → subgoals (any depth).** Subgoals are ordered by priority (drag the number badge or use ▲▼). The top *active* subgoal is the **Focus now** item; finishing it promotes the next one.
-- **Progress types**
-  - **A number** — start → target (counts up *or* down). e.g. card balance $7,500 → $0, savings $0 → $10,000.
-  - **Sum of subgoals** — rolls up the numbers of its children (e.g. total debt across all cards).
-  - **Steps / subgoals done** — milestone progress from the action-plan checklist and finished subgoals.
-- **Log progress** — "Paid down / Added" an amount, or "Set new value". Reaching the target auto-completes the goal (and a roll-up parent when its total hits target).
-- **Insights** — required pace to hit the target date (per month / week), projected finish date from your last 90 days of entries, and whether you're on track.
-- **Action plan** — per-goal checklist of how you'll get there. **Why / how** notes for context.
-- **Overview** — "Focus right now" list (the deepest focus item of every active goal) plus goal cards.
 
-## Data Model (localStorage)
-- `arcus_cloud_goals` — `{ goals: [...] }`
-  - **goal:** `{ id, parentId|null, title, icon, kind: "amount"|"rollup"|"milestone", unit, start, current, target, dueDate, notes, status: "active"|"paused"|"done", order, steps[{id,text,done}], entries[{id,date,delta,value,note}], createdAt, updatedAt, completedAt }`
-- `arcus_cloud_theme` — `"day"` (default) | `"twilight"` | `"night"` | `"random"`.
-- `arcus_cloud_filter` — rail filter (`active` | `done` | `all`).
+- **Goal** — the primary unit. Goals nest without a depth limit. Each has a **measurement type**:
+  Currency, Number, Percentage, Custom unit (all numeric: start → target, increasing *or* decreasing),
+  Milestones (completed milestones, optionally weighted; falls back to completed subgoals), or Done / not done.
+- **Total from subgoals** — a numeric goal can roll up compatible subgoals (same measurement, unit/currency and
+  direction). Incompatible subgoals are listed as *not in total* — values are never silently mixed. A parent
+  baseline that differs from the subgoal total is applied as a baseline, not as phantom progress.
+- **Milestones** — checkpoints. Give one a progress threshold (e.g. *Pay down $1,500*) and it completes
+  automatically when progress crosses it.
+- **Actions** — concrete activities that advance a goal, optionally tied to a milestone, with priority, due date and effort.
+- **Progress entries** — an immutable history (previous → new, change, notes, type). Mistakes are fixed by adding a
+  *correction* that reverses an entry; the original is kept.
+- **Dependencies** — explicit prerequisites between separate goals (not parent/child). Blocked goals are surfaced, not ranked.
+- **Priority vs. urgency** — priority (Critical/High/Medium/Low) is yours; urgency comes from dates (target date,
+  promo expiry). Recommendations add up simple, visible rules (priority, deadline proximity, promo expiry,
+  deferred interest, high APR, behind pace) — every point is shown.
+- **Debt payoff (optional)** — for currency goals: APR, promo APR & expiry, statement day, "promo ends before
+  statement", deferred interest, minimum payment. Arcus estimates the monthly payment needed before the promo ends,
+  the payment to hit the target date, and the cost of paying only the minimum. All clearly labeled as estimates.
+
+Color is used for meaning only: green = complete / positive progress, amber = approaching deadline / caution,
+red = overdue / critical, neutral otherwise.
+
+## Architecture
+
+Plain vanilla HTML/CSS/JS — no framework, bundler or build step; works from `file://` or GitHub Pages.
+Scripts share a single `window.Arcus` namespace and are loaded in dependency order:
+
+| File | Layer | Responsibility |
+|---|---|---|
+| `js/util.js` | utilities | dates, number/currency formatting, escaping |
+| `js/model.js` | domain model | entity shapes & enums, normalization/validation of stored data, v1 → v2 migration |
+| `js/progress.js` | progress engine | the **only** place progress is calculated (numeric, roll-up, milestones, binary, portfolio) |
+| `js/insights.js` | intelligence | urgency, transparent priority rules, recommendations, pace/projection, debt estimates, deadlines, risk, activity |
+| `js/store.js` | application services + persistence | every mutation (validated), immutable history, completion cascade, localStorage |
+| `js/sync.js` | backup | unified Kashikoi backup + zero-knowledge encrypted cloud sync |
+| `js/demo.js` | sample data | Settings → Randomize data |
+| `js/views.js` | UI | pure render functions (state in, HTML out) — no calculations |
+| `js/app.js` | UI controller | routing, forms, dialogs, events, settings |
+
+### Data (localStorage)
+- `arcus_cloud_goals` — `{ schemaVersion: 2, goals[], milestones[], actions[], entries[], dependencies[], focusGoalId }`.
+  Data from the first release (v1) is migrated automatically on load.
+- `arcus_cloud_theme` — `day` (default) | `twilight` | `night` | `random`.
 - `arcus_cloud_phrase` — opt-in remembered cloud recovery phrase.
 
-## Settings
-Atmosphere (Day / Twilight / Night / Random), Export / Import JSON, Encrypted Cloud Sync (same recovery phrase and shared backup as the other cloud apps), Randomize data (demo), Clear all data, About.
-
-## Keyboard
-`N` new goal · `L` log progress on the open goal · `⌘/Ctrl+S` save in the editor · `Esc` close dialogs.
-
-## Files
-`index.html`, `styles.css`, `app.js`, `icon.svg`, `manifest.webmanifest`, `build/` (release mirror).
+## Tests
+```
+node --test tests/*.test.js
+```
+Covers the progress math (increasing/decreasing, zero, overshoot, invalid configs), roll-up compatibility,
+milestone/binary measurement, validation & dependency rules, finance helpers, v1 migration, and the full
+acceptance flow (debt-free goal → four cards → promo → milestones → actions → payments → parent progress →
+history → focus → completion cascade).
