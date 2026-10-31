@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arcus</title>
+  <meta name="description" content="A local-first goal planner: break big goals into prioritized subgoals and track progress." />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg?v=2026.10.31.1" />
+  <link rel="apple-touch-icon" href="icon.svg?v=2026.10.31.1" />
+  <link rel="manifest" href="manifest.webmanifest?v=2026.10.31.1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="styles.css?v=2026.10.31.1" />
+  <script>
+    // Resolve atmosphere before first paint to prevent a flash of the wrong theme.
+    try {
+      var pref = localStorage.getItem("arcus_cloud_theme") || "day";
+      var mode = pref;
+      if (pref === "random") {
+        var modes = ["day", "twilight", "night"];
+        mode = sessionStorage.getItem("arcus_cloud_active_theme");
+        if (modes.indexOf(mode) < 0) {
+          mode = modes[Math.floor(Math.random() * modes.length)];
+          sessionStorage.setItem("arcus_cloud_active_theme", mode);
+        }
+      }
+      if (mode === "day") document.documentElement.classList.add("day");
+      else if (mode === "twilight") document.documentElement.classList.add("twilight");
+      // night = default (no class)
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <!-- Ambient scenic background: arcus (shelf cloud) rolling over a suburban neighborhood -->
+  <div class="scenic-bg" aria-hidden="true">
+    <div class="scenic-sky"></div>
+    <div class="scenic-stars"></div>
+    <div class="celestial celestial--moon"><span class="celestial__glow"></span><span class="celestial__disc"></span></div>
+    <svg class="scenic-scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="stormGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--storm-top)" />
+          <stop offset="1" stop-color="var(--storm-bottom)" />
+        </linearGradient>
+        <linearGradient id="shelfGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--shelf-lit)" />
+          <stop offset="0.45" stop-color="var(--shelf-mid)" />
+          <stop offset="1" stop-color="var(--shelf-shadow)" />
+        </linearGradient>
+        <linearGradient id="shelfUnderGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--shelf-mid)" />
+          <stop offset="1" stop-color="var(--shelf-under)" />
+        </linearGradient>
+        <linearGradient id="lawnGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--lawn)" />
+          <stop offset="1" stop-color="var(--lawn-fore)" />
+        </linearGradient>
+        <filter id="soften" x="-10%" y="-50%" width="120%" height="200%">
+          <feGaussianBlur stdDeviation="14" />
+        </filter>
+        <filter id="softenLight" x="-5%" y="-20%" width="110%" height="140%">
+          <feGaussianBlur stdDeviation="3" />
+        </filter>
+        <g id="house">
+          <rect x="0" y="44" width="150" height="66" fill="var(--house-wall)" />
+          <polygon points="-10,48 75,0 160,48" fill="var(--house-roof)" />
+          <rect x="62" y="18" width="24" height="22" fill="var(--window)" />
+          <rect x="150" y="62" width="84" height="48" fill="var(--house-wall)" />
+          <polygon points="144,66 192,36 240,66" fill="var(--house-roof)" />
+          <rect x="164" y="76" width="56" height="34" fill="var(--garage)" />
+          <rect x="18" y="58" width="20" height="24" fill="var(--window)" />
+          <rect x="112" y="58" width="20" height="24" fill="var(--window)" />
+          <rect x="66" y="70" width="18" height="40" fill="var(--door)" />
+        </g>
+        <g id="youngTree">
+          <rect x="-2" y="0" width="4" height="70" fill="var(--trunk)" />
+          <ellipse cx="0" cy="-6" rx="30" ry="40" fill="var(--tree)" />
+        </g>
+      </defs>
+
+      <!-- glowing gap of open sky beneath the shelf -->
+      <ellipse cx="800" cy="390" rx="980" ry="90" fill="var(--gap-light)" opacity="0.75" filter="url(#soften)" />
+
+      <!-- dark storm deck above -->
+      <path fill="url(#stormGrad)" d="M -20 -20 H 1620 V 180 C 1500 210 1400 160 1270 190 C 1140 220 1040 150 900 170 C 760 190 660 140 520 175 C 380 210 280 150 160 180 C 90 196 30 176 -20 190 Z" />
+      <g fill="var(--storm-bottom)" opacity="0.7" filter="url(#softenLight)">
+        <ellipse cx="180" cy="170" rx="140" ry="40" />
+        <ellipse cx="470" cy="160" rx="160" ry="44" />
+        <ellipse cx="820" cy="150" rx="190" ry="40" />
+        <ellipse cx="1150" cy="170" rx="170" ry="46" />
+        <ellipse cx="1440" cy="160" rx="170" ry="40" />
+      </g>
+
+      <!-- lower tier of the arcus -->
+      <path fill="url(#shelfUnderGrad)" d="M -80 380 C 200 300 500 262 800 258 C 1100 262 1400 300 1680 380 C 1420 352 1120 336 800 336 C 480 336 180 352 -80 380 Z" />
+
+      <!-- main shelf: a long, smooth bow spanning the sky -->
+      <path fill="url(#shelfGrad)" d="M -80 330 C 120 230 430 160 800 150 C 1170 160 1480 230 1680 330 C 1460 296 1150 280 800 280 C 450 280 140 296 -80 330 Z" />
+
+      <!-- turbulent, billowing top edge where the shelf meets the storm deck -->
+      <g fill="var(--shelf-mid)" opacity="0.55" filter="url(#softenLight)">
+        <ellipse cx="240" cy="226" rx="120" ry="26" />
+        <ellipse cx="520" cy="176" rx="150" ry="28" />
+        <ellipse cx="1080" cy="176" rx="160" ry="28" />
+        <ellipse cx="1360" cy="226" rx="120" ry="26" />
+      </g>
+      <g fill="var(--shelf-lit)" opacity="0.45" filter="url(#softenLight)">
+        <ellipse cx="380" cy="200" rx="110" ry="18" />
+        <ellipse cx="800" cy="160" rx="200" ry="16" />
+        <ellipse cx="1220" cy="200" rx="110" ry="18" />
+      </g>
+
+      <!-- layered striations along the shelf face -->
+      <g fill="none" stroke="var(--shelf-lit)" stroke-linecap="round" opacity="0.35">
+        <path stroke-width="3" d="M 40 296 C 300 222 560 190 800 186 C 1040 190 1300 222 1560 296" />
+        <path stroke-width="2" d="M 120 302 C 360 244 600 220 800 218 C 1000 220 1240 244 1480 302" />
+        <path stroke-width="2" d="M 220 310 C 420 268 620 252 800 250 C 980 252 1180 268 1380 310" />
+      </g>
+      <g fill="none" stroke="var(--shelf-under)" stroke-linecap="round" opacity="0.45">
+        <path stroke-width="3" d="M 60 360 C 300 316 560 296 800 294 C 1040 296 1300 316 1540 360" />
+      </g>
+
+      <!-- distant tree line + utility tower -->
+      <path fill="var(--tree-far)" d="M -10 560 L -10 520 C 20 500 50 512 80 504 C 110 494 140 514 170 506 L 1150 520 C 1180 486 1210 498 1240 484 C 1270 470 1300 492 1330 478 C 1360 466 1400 488 1430 476 C 1470 462 1510 486 1540 474 C 1570 466 1600 482 1610 480 L 1610 560 Z" />
+      <g stroke="var(--tower)" stroke-width="2.4" fill="none" opacity="0.8">
+        <path d="M 1440 500 L 1452 380 L 1464 500 M 1452 380 L 1452 360 M 1436 400 L 1468 400 M 1440 420 L 1464 420" />
+        <path d="M 1470 500 L 1478 390 L 1486 500" />
+      </g>
+
+      <!-- houses -->
+      <use href="#house" transform="translate(-30 486) scale(0.5)" />
+      <use href="#house" transform="translate(150 470) scale(0.62)" />
+      <use href="#house" transform="translate(470 440) scale(0.95)" />
+      <use href="#house" transform="translate(910 452) scale(0.86)" />
+      <use href="#house" transform="translate(1180 476) scale(0.66)" />
+
+      <!-- lawn -->
+      <path fill="url(#lawnGrad)" d="M -10 548 C 300 540 700 552 1000 546 C 1250 540 1450 552 1610 546 L 1610 912 L -10 912 Z" />
+
+      <!-- curving street + driveways -->
+      <path fill="var(--road)" d="M -10 600 C 300 586 600 596 900 604 C 1150 610 1400 600 1610 596 L 1610 640 C 1400 646 1150 656 900 650 C 600 642 300 634 -10 648 Z" />
+      <path fill="var(--road)" opacity="0.9" d="M 640 550 L 700 550 L 740 600 L 650 600 Z M 1040 552 L 1100 552 L 1130 604 L 1040 604 Z" />
+      <path fill="var(--road)" d="M 1120 690 C 1250 676 1450 672 1610 680 L 1610 760 C 1450 748 1260 744 1060 760 Z" />
+
+      <!-- young street trees -->
+      <use href="#youngTree" transform="translate(560 560) scale(0.9)" />
+      <use href="#youngTree" transform="translate(1080 548) scale(0.8)" />
+      <use href="#youngTree" transform="translate(1540 560) scale(0.7)" />
+
+      <!-- foreground maple + evergreen -->
+      <g>
+        <rect x="372" y="560" width="8" height="140" fill="var(--trunk)" />
+        <ellipse cx="376" cy="520" rx="78" ry="88" fill="var(--tree-dark)" />
+        <ellipse cx="350" cy="490" rx="40" ry="44" fill="var(--tree)" opacity="0.55" />
+      </g>
+      <g fill="var(--tree-dark)">
+        <polygon points="96,330 150,470 42,470" />
+        <polygon points="96,400 166,560 26,560" />
+        <polygon points="96,480 180,650 12,650" />
+        <rect x="90" y="640" width="12" height="50" fill="var(--trunk)" />
+      </g>
+
+      <!-- mulch bed + shrubs -->
+      <ellipse cx="420" cy="770" rx="330" ry="60" fill="var(--mulch)" />
+      <g fill="var(--tree)">
+        <ellipse cx="240" cy="750" rx="44" ry="30" />
+        <ellipse cx="330" cy="760" rx="36" ry="26" />
+        <ellipse cx="560" cy="740" rx="40" ry="30" />
+        <ellipse cx="620" cy="770" rx="34" ry="24" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="shell" id="shell">
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar" id="topbar">
+      <nav class="crumb" id="crumb" aria-label="Breadcrumb"></nav>
+      <div class="topbar__actions">
+        <button type="button" class="btn btn--beacon btn--tiny" id="topLogBtn" hidden>+ Log progress</button>
+        <button type="button" class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">&#9881;&#65039;</button>
+      </div>
+    </header>
+
+    <div class="app" id="app">
+      <!-- ============ LEFT RAIL ============ -->
+      <aside class="rail" id="rail">
+        <header class="rail__brand">
+          <svg class="brand__emblem" viewBox="0 0 120 80" role="img" aria-label="Arcus cloud emblem">
+            <defs>
+              <linearGradient id="emblemShelf" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#f8fafc" />
+                <stop offset="1" stop-color="#94a3b8" />
+              </linearGradient>
+            </defs>
+            <path d="M 4 40 C 24 14 46 8 60 8 C 74 8 96 14 116 40 C 96 30 78 28 60 28 C 42 28 24 30 4 40 Z" fill="url(#emblemShelf)" />
+            <path d="M 4 48 C 26 34 46 32 60 32 C 74 32 94 34 116 48 C 94 42 78 40 60 40 C 42 40 26 42 4 48 Z" fill="#64748b" />
+            <path d="M 24 74 L 46 60 L 64 62 L 92 46" fill="none" stroke="var(--beacon-bright)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="92" cy="46" r="5" fill="var(--beacon-bright)" />
+          </svg>
+          <div>
+            <h1 class="brand__name">Arcus</h1>
+            <p class="brand__tag">Goals &middot; Priorities &middot; Progress</p>
+          </div>
+        </header>
+
+        <div class="rail__summary" id="railSummary"></div>
+
+        <div class="seg" id="railFilter" role="tablist" aria-label="Filter goals">
+          <button type="button" class="seg__btn is-active" data-filter="active">Active</button>
+          <button type="button" class="seg__btn" data-filter="done">Done</button>
+          <button type="button" class="seg__btn" data-filter="all">All</button>
+        </div>
+
+        <ul class="goal-list" id="goalList"></ul>
+
+        <button type="button" class="btn btn--beacon rail__new" id="newGoalBtn">+ New goal</button>
+        <p class="rail__version" id="appVersion"></p>
+      </aside>
+
+      <!-- ============ MAIN CANVAS ============ -->
+      <main class="canvas" id="canvas"></main>
+    </div>
+  </div>
+
+  <!-- Goal editor modal -->
+  <div class="modal" id="editorModal" hidden>
+    <div class="modal__backdrop" data-close-editor></div>
+    <div class="modal__card modal__card--wide" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="editorTitle">New goal</h2>
+        <button type="button" class="modal__close" data-close-editor aria-label="Close dialog">&times;</button>
+      </div>
+      <form class="form" id="editorForm" autocomplete="off">
+        <div class="form__row form__row--icon">
+          <label class="field field--icon">
+            <span class="field__label">Icon</span>
+            <input class="field__input" id="fIcon" maxlength="4" />
+          </label>
+          <label class="field">
+            <span class="field__label">Goal</span>
+            <input class="field__input" id="fTitle" required placeholder="e.g. Pay off all credit card debt" />
+          </label>
+        </div>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Part of</span>
+            <select class="field__input" id="fParent"></select>
+          </label>
+          <label class="field">
+            <span class="field__label">Status</span>
+            <select class="field__input" id="fStatus">
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="done">Done</option>
+            </select>
+          </label>
+        </div>
+        <div class="field">
+          <span class="field__label">How is progress measured?</span>
+          <div class="seg seg--form" id="fKind">
+            <button type="button" class="seg__btn" data-kind="amount">A number</button>
+            <button type="button" class="seg__btn" data-kind="rollup">Sum of subgoals</button>
+            <button type="button" class="seg__btn" data-kind="milestone">Steps / subgoals done</button>
+          </div>
+          <span class="field__hint" id="fKindHint"></span>
+        </div>
+        <div class="form__row" id="fUnitRow">
+          <label class="field">
+            <span class="field__label">Unit</span>
+            <select class="field__input" id="fUnit">
+              <option value="$">$ (dollars)</option>
+              <option value="%">% (percent)</option>
+              <option value="">Count</option>
+              <option value="lb">lb</option>
+              <option value="mi">mi</option>
+              <option value="hrs">hrs</option>
+              <option value="__custom">Custom&hellip;</option>
+            </select>
+          </label>
+          <label class="field" id="fUnitCustomWrap" hidden>
+            <span class="field__label">Custom unit</span>
+            <input class="field__input" id="fUnitCustom" maxlength="12" placeholder="e.g. books" />
+          </label>
+        </div>
+        <div class="form__row form__row--3" id="fNumbersRow">
+          <label class="field">
+            <span class="field__label">Starting value</span>
+            <input class="field__input" id="fStart" type="number" step="any" inputmode="decimal" />
+          </label>
+          <label class="field">
+            <span class="field__label">Current value</span>
+            <input class="field__input" id="fCurrent" type="number" step="any" inputmode="decimal" />
+          </label>
+          <label class="field">
+            <span class="field__label">Target</span>
+            <input class="field__input" id="fTarget" type="number" step="any" inputmode="decimal" />
+          </label>
+        </div>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Target date <em>(optional)</em></span>
+            <input class="field__input" id="fDue" type="date" />
+          </label>
+          <span class="field__hint field__hint--inline" id="fDirection"></span>
+        </div>
+        <label class="field">
+          <span class="field__label">Why / how <em>(notes)</em></span>
+          <textarea class="field__input field__input--area" id="fNotes" rows="3" placeholder="e.g. 0% APR ends Jan 1. Then 24.99% kicks in, so clear this one first."></textarea>
+        </label>
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost" data-close-editor>Cancel</button>
+          <button type="submit" class="btn btn--beacon">Save goal <kbd>&#8984;S</kbd></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Log progress modal -->
+  <div class="modal" id="logModal" hidden>
+    <div class="modal__backdrop" data-close-log></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="logTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="logTitle">Log progress</h2>
+        <button type="button" class="modal__close" data-close-log aria-label="Close dialog">&times;</button>
+      </div>
+      <form class="form" id="logForm" autocomplete="off">
+        <label class="field">
+          <span class="field__label">Goal</span>
+          <select class="field__input" id="lGoal"></select>
+        </label>
+        <div class="seg seg--form" id="lMode">
+          <button type="button" class="seg__btn is-active" data-mode="change" id="lModeChange">Paid down</button>
+          <button type="button" class="seg__btn" data-mode="set">Set new value</button>
+        </div>
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label" id="lAmountLabel">Amount</span>
+            <input class="field__input" id="lAmount" type="number" step="any" inputmode="decimal" required />
+          </label>
+          <label class="field">
+            <span class="field__label">Date</span>
+            <input class="field__input" id="lDate" type="date" required />
+          </label>
+        </div>
+        <p class="field__hint" id="lPreview"></p>
+        <label class="field">
+          <span class="field__label">Note <em>(optional)</em></span>
+          <input class="field__input" id="lNote" placeholder="e.g. Extra payment from bonus" />
+        </label>
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost" data-close-log>Cancel</button>
+          <button type="submit" class="btn btn--beacon">Log it</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="modal" id="settingsModal" hidden>
+    <div class="modal__backdrop" data-close-settings></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="settingsTitle">Settings</h2>
+        <button type="button" class="modal__close" data-close-settings aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="settings-content">
+        <div class="settings-group">
+          <div class="settings-row__label">Atmosphere</div>
+          <div class="settings-row__desc">Pick the light over the neighborhood &mdash; or let it roll the dice each visit.</div>
+          <div class="theme-picker" id="themePicker" role="radiogroup" aria-label="Atmosphere">
+            <button type="button" class="theme-chip" data-theme-val="day">&#9728;&#65039; Day</button>
+            <button type="button" class="theme-chip" data-theme-val="twilight">&#127750; Twilight</button>
+            <button type="button" class="theme-chip" data-theme-val="night">&#127769; Night</button>
+            <button type="button" class="theme-chip" data-theme-val="random">&#127922; Random</button>
+          </div>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-group">
+          <p class="settings-privacy">Everything stays 100% in your browser (local-first localStorage).</p>
+          <div class="settings-actions">
+            <button type="button" class="btn btn--ghost" id="exportBtn">Export data (JSON)</button>
+            <button type="button" class="btn btn--ghost" id="importBtn">Import data (JSON)</button>
+            <input type="file" id="importFile" accept="application/json,.json" hidden />
+          </div>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-group">
+          <div class="settings-row__label">Encrypted Cloud Sync</div>
+          <div class="settings-row__desc">Create or enter a recovery phrase. Arcus encrypts your backup in this browser before it ever leaves &mdash; the server only ever sees ciphertext and cannot recover lost words. Uses the same phrase as your other cloud apps.</div>
+          <!-- Own <form> so password managers don't pair this field with other inputs as a "username". -->
+          <form class="cloud-data-field" id="cloudPhraseForm" autocomplete="off">
+            <span class="cloud-data-field__label">Recovery phrase</span>
+            <span class="cloud-phrase-entry">
+              <input class="cloud-data-field__input" id="cloudPhrase" type="password" autocomplete="off" spellcheck="false" placeholder="sixteen recovery words" aria-label="Recovery phrase" />
+              <button type="button" class="cloud-phrase-entry__toggle" id="togglePhraseBtn" aria-pressed="false">Show</button>
+            </span>
+          </form>
+          <p class="cloud-phrase-output" id="cloudPhraseOut" hidden></p>
+          <label class="cloud-remember-option">
+            <input type="checkbox" id="rememberPhrase" />
+            <span>Remember on this device</span>
+          </label>
+          <div class="settings-actions settings-actions--compact">
+            <button type="button" class="btn btn--ghost" id="generatePhraseBtn">Create phrase</button>
+            <button type="button" class="btn btn--ghost" id="cloudSaveBtn">Save to cloud</button>
+            <button type="button" class="btn btn--ghost" id="cloudLoadBtn">Restore from cloud</button>
+          </div>
+          <p class="cloud-data-status" id="cloudStatus" aria-live="polite"></p>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-group">
+          <div class="settings-row__label">Data</div>
+          <div class="settings-row__desc">Load a sample set to explore, or wipe everything and start fresh.</div>
+          <div class="settings-actions">
+            <button type="button" class="btn btn--ghost" id="randomizeBtn">Randomize data (demo)</button>
+            <button type="button" class="btn btn--ghost" id="aboutBtn">About Arcus</button>
+            <button type="button" class="btn btn--danger" id="clearBtn">Clear all data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About modal -->
+  <div class="modal" id="aboutModal" hidden>
+    <div class="modal__backdrop" data-close-about></div>
+    <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="aboutTitle">About Arcus</h2>
+        <button type="button" class="modal__close" data-close-about aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="about-content">
+        <p class="about-content__name">Arcus</p>
+        <p class="about-content__version" id="aboutVersion">Version 2026.10.31.1</p>
+        <p class="about-content__description">A local-first goal planner. Set a big goal, break it into prioritized subgoals, and log progress until it&rsquo;s done. Named after the arcus &mdash; the long, low shelf cloud that rolls in ahead of a storm front.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js?v=2026.10.31.1"></script>
+</body>
+</html>

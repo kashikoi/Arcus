@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e293b" />
+      <stop offset="0.6" stop-color="#475569" />
+      <stop offset="1" stop-color="#cbd5e1" />
+    </linearGradient>
+    <linearGradient id="shelf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1f5f9" />
+      <stop offset="1" stop-color="#64748b" />
+    </linearGradient>
+    <clipPath id="r"><rect width="128" height="128" rx="28" /></clipPath>
+  </defs>
+  <g clip-path="url(#r)">
+  <rect width="128" height="128" rx="28" fill="url(#sky)" />
+  <path d="M 4 62 C 24 34 50 26 64 26 C 78 26 104 34 124 62 C 104 52 84 48 64 48 C 44 48 24 52 4 62 Z" fill="url(#shelf)" />
+  <path d="M 4 70 C 26 56 48 52 64 52 C 80 52 102 56 124 70 C 102 64 84 62 64 62 C 44 62 26 64 4 70 Z" fill="#475569" opacity="0.9" />
+  <rect x="0" y="96" width="128" height="32" fill="#16a34a" />
+  <path d="M 30 112 L 52 90 L 72 80 L 98 66" fill="none" stroke="#6ee7b7" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 98 66 L 98 46 L 114 52 L 98 58" fill="#34d399" stroke="#10b981" stroke-width="2" stroke-linejoin="round" />
+  <circle cx="30" cy="112" r="5" fill="#ecfdf5" />
+  </g>
+</svg>
